@@ -32,6 +32,7 @@ def seg_to_list(sentence, pos=False):
 
 # 去除干扰词
 def word_filter(seg_list, pos=False):
+    # 获取停用词
     stopword_list = get_stopword_list()
     filter_list = []
     # 根据POS参数选择是否词性过滤
