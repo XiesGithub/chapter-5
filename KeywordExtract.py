@@ -45,36 +45,44 @@ def word_filter(seg_list, pos=False):
         else:
             word = seg.word
             flag = seg.flag
+        # 判断词性开头是否为n
         if not flag.startswith('n'):
             continue
         # 过滤停用词表中的词，以及长度为<2的词
         if not word in stopword_list and len(word) > 1:
+            # 将过滤后的词加入filter_list
             filter_list.append(word)
 
     return filter_list
 
 
-# 数据加载，pos为是否词性标注的参数，corpus_path为数据集路径
+# 数据加载，pos为是否词性标注的参数，corpus_path为数据集路径（可参考）
 def load_data(pos=False, corpus_path='./corpus.txt'):
     # 调用上面方式对数据集进行处理，处理后的每条数据仅保留非干扰词
     doc_list = []
+    # for循环按行读取文件
     for line in open(corpus_path, 'r',encoding='utf-8'):
+        # strip()返回的是删除字符串前导和尾随空格的字符串副本
         content = line.strip()
+        # 调用seg_to_list分词
         seg_list = seg_to_list(content, pos)
+        # 调用word_filter去除干扰词
         filter_list = word_filter(seg_list, pos)
+        # 将过滤后的词加入数据列表中
         doc_list.append(filter_list)
 
     return doc_list
 
 
-# idf值统计方法
+# idf值统计方法（见书P87：idf计算公式）
 def train_idf(doc_list):
     idf_dic = {}
     # 总文档数
     tt_count = len(doc_list)
 
-    # 每个词出现的文档数
+    # 每个词出现的文档数（使用get() set()方法）
     for doc in doc_list:
+        # set(doc)返回新的集合对象
         for word in set(doc):
             idf_dic[word] = idf_dic.get(word, 0.0) + 1.0
 
@@ -90,6 +98,7 @@ def train_idf(doc_list):
 #  排序函数，用于topK关键词的按值排序
 def cmp(e1, e2):
     import numpy as np
+    # sign函数用于返回数值的符号
     res = np.sign(e1[1] - e2[1])
     if res != 0:
         return res
@@ -103,7 +112,8 @@ def cmp(e1, e2):
         else:
             return -1
 
-# TF-IDF类
+
+# TF-IDF（词频-文本频率指数）类
 class TfIdf(object):
     # 四个参数分别是：训练好的idf字典，默认idf值，处理后的待提取文本，关键词数量
     def __init__(self, idf_dic, default_idf, word_list, keyword_num):
@@ -112,7 +122,7 @@ class TfIdf(object):
         self.tf_dic = self.get_tf_dic()
         self.keyword_num = keyword_num
 
-    # 统计tf值
+    # 统计tf值（tf：词频统计）
     def get_tf_dic(self):
         tf_dic = {}
         for word in self.word_list:
@@ -228,6 +238,7 @@ class TopicModel(object):
         return vec_list
 
 
+# tf-idf提取模型
 def tfidf_extract(word_list, pos=False, keyword_num=10):
     doc_list = load_data(pos)
     idf_dic, default_idf = train_idf(doc_list)
@@ -235,6 +246,7 @@ def tfidf_extract(word_list, pos=False, keyword_num=10):
     tfidf_model.get_tfidf()
 
 
+# textRank提取模型
 def textrank_extract(text, pos=False, keyword_num=10):
     textrank = analyse.textrank
     keywords = textrank(text, keyword_num)
@@ -244,6 +256,7 @@ def textrank_extract(text, pos=False, keyword_num=10):
     print()
 
 
+# LSI、LDA模型结果
 def topic_extract(word_list, model, pos=False, keyword_num=10):
     doc_list = load_data(pos)
     topic_model = TopicModel(doc_list, keyword_num, model=model)
