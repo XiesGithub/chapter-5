@@ -1,4 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
+# chapter-5 关键词提取
 
 import math
 
@@ -9,7 +10,7 @@ from jieba import analyse
 import functools
 
 
-# 停用词表加载方法
+# 停用词表加载方法（可参考）
 def get_stopword_list():
     # 停用词表存储路径，每一行为一个词，按行读取进行加载
     # 进行编码转换确保匹配准确率
@@ -19,7 +20,7 @@ def get_stopword_list():
     return stopword_list
 
 
-# 分词方法，调用结巴接口
+# 分词方法，调用结巴接口（可参考）
 def seg_to_list(sentence, pos=False):
     if not pos:
         # 不进行词性标注的分词方法
@@ -30,7 +31,7 @@ def seg_to_list(sentence, pos=False):
     return seg_list
 
 
-# 去除干扰词
+# 去除干扰词（可参考）
 def word_filter(seg_list, pos=False):
     # 获取停用词
     stopword_list = get_stopword_list()
@@ -140,7 +141,7 @@ class TfIdf(object):
         print()
 
 
-# 主题模型
+# 类：主题模型
 class TopicModel(object):
     # 三个传入参数：处理后的数据集，关键词数量，具体模型（LSI、LDA），主题数量
     def __init__(self, doc_list, keyword_num, model='LSI', num_topics=4):
@@ -248,8 +249,9 @@ def topic_extract(word_list, model, pos=False, keyword_num=10):
     topic_model = TopicModel(doc_list, keyword_num, model=model)
     topic_model.get_simword(word_list)
 
-
+# 程序入口
 if __name__ == '__main__':
+    # 测试用文本段
     text = '6月19日,《2012年度“中国爱心城市”公益活动新闻发布会》在京举行。' + \
            '中华社会救助基金会理事长许嘉璐到会讲话。基金会高级顾问朱发忠,全国老龄' + \
            '办副主任朱勇,民政部社会救助司助理巡视员周萍,中华社会救助基金会副理事长耿志远,' + \
@@ -263,6 +265,7 @@ if __name__ == '__main__':
            '常委会主任陈健倩介绍了大会的筹备情况。'
 
     pos = True
+    # 分词，pos表示是否进行词性标注
     seg_list = seg_to_list(text, pos)
     filter_list = word_filter(seg_list, pos)
 
